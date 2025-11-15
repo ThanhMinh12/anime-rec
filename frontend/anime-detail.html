@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anime Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<nav class="p-4 bg-black text-white flex gap-4">
+  <a href="index.html" class="font-bold">AnimeRec</a>
+  <a href="anime.html">Anime</a>
+  <span id="auth-links" class="ml-auto"></span>
+</nav>
+
+<div class="p-6">
+  <div id="anime"></div>
+
+  <h2 class="text-2xl font-semibold mt-8">Reviews</h2>
+  <h2 class="text-2xl font-semibold mt-8">Add a Review</h2>
+
+<form id="review-form" class="mt-3 space-y-3 bg-white p-4 rounded border">
+  <label class="block">
+    <span class="text-gray-700">Rating (1–10)</span>
+    <input type="number" id="rating" min="1" max="10"
+      class="border rounded p-2 w-full" required />
+  </label>
+
+  <label class="block">
+    <span class="text-gray-700">Your Review</span>
+    <textarea id="review-text" class="border rounded p-2 w-full" rows="3"></textarea>
+  </label>
+  <button type="submit"
+    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    Submit Review
+  </button>
+</form>
+  <div id="reviews" class="space-y-4 mt-2"></div>
+
+  <h2 class="text-2xl font-semibold mt-8">Related Anime</h2>
+  <div id="related" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4"></div>
+</div>
+
+<script>
+const API = "http://localhost:8000";
+const urlParams = new URLSearchParams(window.location.search);
+const id = urlParams.get("id");
+
+// Anime details
+fetch(`${API}/anime/${id}`)
+  .then(res => res.json())
+  .then(a => {
+    if (a.error) {
+      document.getElementById("anime").innerHTML =
+        `<p class="text-red-600">${a.error}</p>`;
+      return;
+    }
+
+    document.getElementById("anime").innerHTML = `
+      <h1 class="text-4xl font-bold">${a.title}</h1>
+      <p class="text-gray-600">${a.year || ""}</p>
+      <p class="mt-4">${a.synopsis || ""}</p>
+    `;
+  });
+
+// Reviews
+fetch(`${API}/reviews/anime/${id}`)
+  .then(res => res.json())
+  .then(data => {
+    if (!Array.isArray(data)) {
+      document.getElementById("reviews").innerHTML =
+        "<p>No reviews found.</p>";
+      return;
+    }
+
+    document.getElementById("reviews").innerHTML = data
+      .map(r => `
+        <div class="border p-3 rounded bg-white">
+          <p class="font-semibold">${r.rating}/10</p>
+          <p>${r.text || ""}</p>
+        </div>
+      `)
+      .join("");
+  });
+
+// Related
+fetch(`${API}/recommendations/${id}`)
+  .then(res => res.json())
+  .then(list => {
+    if (!Array.isArray(list)) {
+      document.getElementById("related").innerHTML =
+        "<p>No related anime found.</p>";
+      return;
+    }
+
+    document.getElementById("related").innerHTML = list
+      .map(a => `
+        <a href="anime-detail.html?id=${a.id}"
+           class="border p-4 rounded bg-white hover:bg-gray-100">
+          <h3 class="font-semibold">${a.title}</h3>
+        </a>
+      `)
+      .join("");
+  });
+</script>
+
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+// SUBMIT REVIEW
+document.getElementById("review-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const rating = Number(document.getElementById("rating").value);
+  const text = document.getElementById("review-text").value;
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login");
+    return;
+  }
+
+  const res = await fetch(`${API}/reviews/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify({
+      anime_id: Number(id),
+      rating,
+      text
+    })
+  });
+
+  const data = await res.json();
+  console.log("Review submitted:", data);
+
+  // Reload reviews
+  loadReviews();
+});
+
+// Update reviews loaded function
+async function loadReviews() {
+  const id = new URLSearchParams(location.search).get("id");
+  const res = await fetch(`${API}/reviews/anime/${id}`);
+
+  if (res.status === 404) {
+    document.getElementById("reviews").innerHTML =
+      "<p class='text-gray-500'>No reviews yet.</p>";
+    return;
+  }
+
+  const reviews = await res.json();
+
+  document.getElementById("reviews").innerHTML = reviews.map(r => `
+      <div class="border p-3 rounded bg-white mb-2">
+        <p class="font-bold">Rating: ${r.rating}/10</p>
+        <p>${r.text || ""}</p>
+      </div>
+    `).join("");
+}
+</script>
+
+<script>
+function updateAuthLinks() {
+  const links = document.getElementById("auth-links");
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    links.innerHTML = `
+      <button onclick="logout()" class="text-red-400 hover:text-red-300">Logout</button>
+    `;
+  } else {
+    links.innerHTML = `
+      <a href="login.html" class="hover:text-gray-300">Login</a>
+      <a href="signup.html" class="hover:text-gray-300 ml-2">Sign Up</a>
+    `;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.reload();
+}
+
+updateAuthLinks();
+</script>
+
+</body>
+</html>

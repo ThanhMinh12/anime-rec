@@ -1,0 +1,36 @@
+from sqlmodel import SQLModel, Field
+from typing import Optional
+from datetime import datetime
+class User(SQLModel, table=True):
+    __tablename__ = "users"  # avoid reserved keyword
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(index=True, unique=True)
+    password_hash: str = Field(max_length=255)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Anime(SQLModel, table=True):
+    __tablename__ = "anime"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    jikan_id: Optional[int] = Field(default=None, index=True, unique=True)
+    title: str = Field(index=True)
+    synopsis: Optional[str] = None
+    image_url: Optional[str] = None
+    year: Optional[int] = None
+    score: Optional[float] = None
+    genres: Optional[str] = None
+    author: Optional[str] = None
+    studio: Optional[str] = None
+
+
+class Review(SQLModel, table=True):
+    __tablename__ = "review"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="users.id")
+    anime_id: int = Field(foreign_key="anime.id")
+    rating: int = Field(ge=1, le=10)
+    text: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)

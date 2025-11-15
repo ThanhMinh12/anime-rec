@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anime List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+<nav class="p-4 bg-black text-white flex gap-4">
+  <a href="index.html" class="font-bold">AnimeRec</a>
+  <a href="anime.html">Anime</a>
+  <span id="auth-links" class="ml-auto"></span>
+</nav>
+
+<div class="p-6">
+  <h1 class="text-3xl font-bold mb-4">Anime</h1>
+
+  <!-- SEARCH + GENRE FILTER -->
+  <div class="flex gap-4 mb-4">
+    <input id="search" placeholder="Search anime..."
+           class="border p-2 rounded w-full" />
+
+    <select id="genre-select" class="border p-2 rounded">
+      <option value="">All Genres</option>
+    </select>
+  </div>
+
+  <div id="anime-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+</div>
+
+<script>
+const API = "http://localhost:8000";
+
+async function loadAnime(query = "", genre = "") {
+  let url = "";
+
+  if (genre) {
+    url = `${API}/anime/genre/${encodeURIComponent(genre)}`;
+  } else if (query) {
+    url = `${API}/anime/search?q=${encodeURIComponent(query)}`;
+  } else {
+    url = `${API}/anime/`;
+  }
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  document.getElementById("anime-list").innerHTML = Array.isArray(data)
+    ? data.map(a => `
+        <a href="anime-detail.html?id=${a.id}" 
+           class="border p-4 rounded bg-white hover:bg-gray-100">
+          <h3 class="font-semibold">${a.title}</h3>
+          <p class="text-gray-500">${a.year || ""}</p>
+        </a>
+      `).join("")
+    : "<p>No anime found.</p>";
+}
+
+// Load genres (backend list)
+async function loadGenres() {
+  const res = await fetch(`${API}/anime/genres`);
+  const genres = await res.json();
+
+  const select = document.getElementById("genre-select");
+  genres.forEach(g => {
+    const opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = g;
+    select.appendChild(opt);
+  });
+}
+
+// Event Listeners
+document.getElementById("search").addEventListener("input", (e) => {
+  const query = e.target.value;
+  const genre = document.getElementById("genre-select").value;
+  loadAnime(query, genre);
+});
+
+document.getElementById("genre-select").addEventListener("change", (e) => {
+  const genre = e.target.value;
+  const query = document.getElementById("search").value;
+  loadAnime(query, genre);
+});
+
+// Initialize
+loadGenres();
+loadAnime();
+</script>
+
+<script>
+function updateAuthLinks() {
+  const links = document.getElementById("auth-links");
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    links.innerHTML = `
+      <button onclick="logout()" class="text-red-400 hover:text-red-300">Logout</button>
+    `;
+  } else {
+    links.innerHTML = `
+      <a href="login.html" class="hover:text-gray-300">Login</a>
+      <a href="signup.html" class="hover:text-gray-300 ml-2">Sign Up</a>
+    `;
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.reload();
+}
+
+updateAuthLinks();
+</script>
+
+</body>
+</html>
