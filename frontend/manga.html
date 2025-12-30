@@ -33,18 +33,16 @@
 <script>
 const API = "http://localhost:8000";
 
-/* --------------------------
-   Load Manga
---------------------------- */
+
 async function loadManga(query = "", genre = "") {
   let url = "";
 
   if (genre) {
-    url = `${API}/manga/genre/${encodeURIComponent(genre)}`;
+    url = `/manga/genre/${encodeURIComponent(genre)}`;
   } else if (query) {
-    url = `${API}/manga/search?q=${encodeURIComponent(query)}`;
+    url = `/manga/search?q=${encodeURIComponent(query)}`;
   } else {
-    url = `${API}/manga/`;
+    url = `/manga/`;
   }
 
   const res = await fetch(url);
@@ -61,11 +59,9 @@ async function loadManga(query = "", genre = "") {
     : "<p>No manga found.</p>";
 }
 
-/* --------------------------
-   Load Genres
---------------------------- */
+
 async function loadGenres() {
-  const res = await fetch(`${API}/manga/genres`);
+  const res = await fetch(`/manga/genres`);
   const genres = await res.json();
 
   const select = document.getElementById("genre-select");
@@ -77,9 +73,6 @@ async function loadGenres() {
   });
 }
 
-/* --------------------------
-   Event Listeners
---------------------------- */
 document.getElementById("search").addEventListener("input", (e) => {
   const query = e.target.value;
   const genre = document.getElementById("genre-select").value;
@@ -92,9 +85,7 @@ document.getElementById("genre-select").addEventListener("change", (e) => {
   loadManga(query, genre);
 });
 
-/* --------------------------
-   Initialize
---------------------------- */
+
 loadGenres();
 loadManga();
 </script>

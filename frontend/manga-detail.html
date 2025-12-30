@@ -48,10 +48,7 @@ const API = "http://localhost:8000";
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
 
-/* --------------------------
-   Load Manga Details
---------------------------- */
-fetch(`${API}/manga/${id}`)
+fetch(`/manga/${id}`)
   .then(res => res.json())
   .then(m => {
     if (m.error) {
@@ -71,7 +68,7 @@ fetch(`${API}/manga/${id}`)
    Load Reviews
 --------------------------- */
 async function loadReviews() {
-  const res = await fetch(`${API}/reviews/manga/${id}`);
+  const res = await fetch(`/reviews/manga/${id}`);
   if (res.status === 404) {
     document.getElementById("reviews").innerHTML =
       "<p class='text-gray-500'>No reviews yet.</p>";
@@ -106,7 +103,7 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
     return;
   }
 
-  const res = await fetch(`${API}/reviews/`, {
+  const res = await fetch(`/reviews/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -123,10 +120,8 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
   loadReviews();
 });
 
-/* --------------------------
-   Load Related Manga
---------------------------- */
-fetch(`${API}/recommendations/${id}`)
+
+fetch(`/recommendations/${id}`)
   .then(res => res.json())
   .then(list => {
     if (!Array.isArray(list)) {
@@ -144,9 +139,7 @@ fetch(`${API}/recommendations/${id}`)
       `).join("");
   });
 
-/* --------------------------
-   Auth Links
---------------------------- */
+
 function updateAuthLinks() {
   const links = document.getElementById("auth-links");
   const token = localStorage.getItem("token");
