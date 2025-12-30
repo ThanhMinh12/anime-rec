@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anime List</title>
+  <title>Manga List</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
 <nav class="p-4 bg-black text-white flex gap-4">
-  <a href="index.html" class="font-bold">AnimeRec</a>
-  <a href="anime.html">Anime</a>
+  <a href="index.html" class="font-bold">MangaRec</a>
+  <a href="manga.html">Manga</a>
   <span id="auth-links" class="ml-auto"></span>
 </nav>
 
 <div class="p-6">
-  <h1 class="text-3xl font-bold mb-4">Anime</h1>
+  <h1 class="text-3xl font-bold mb-4">Manga</h1>
 
   <!-- SEARCH + GENRE FILTER -->
   <div class="flex gap-4 mb-4">
-    <input id="search" placeholder="Search anime..."
+    <input id="search" placeholder="Search manga..."
            class="border p-2 rounded w-full" />
 
     <select id="genre-select" class="border p-2 rounded">
@@ -27,40 +27,45 @@
     </select>
   </div>
 
-  <div id="anime-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+  <div id="manga-list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 </div>
 
 <script>
 const API = "http://localhost:8000";
 
-async function loadAnime(query = "", genre = "") {
+/* --------------------------
+   Load Manga
+--------------------------- */
+async function loadManga(query = "", genre = "") {
   let url = "";
 
   if (genre) {
-    url = `${API}/anime/genre/${encodeURIComponent(genre)}`;
+    url = `${API}/manga/genre/${encodeURIComponent(genre)}`;
   } else if (query) {
-    url = `${API}/anime/search?q=${encodeURIComponent(query)}`;
+    url = `${API}/manga/search?q=${encodeURIComponent(query)}`;
   } else {
-    url = `${API}/anime/`;
+    url = `${API}/manga/`;
   }
 
   const res = await fetch(url);
   const data = await res.json();
 
-  document.getElementById("anime-list").innerHTML = Array.isArray(data)
-    ? data.map(a => `
-        <a href="anime-detail.html?id=${a.id}" 
+  document.getElementById("manga-list").innerHTML = Array.isArray(data)
+    ? data.map(m => `
+        <a href="manga-detail.html?id=${m.id}" 
            class="border p-4 rounded bg-white hover:bg-gray-100">
-          <h3 class="font-semibold">${a.title}</h3>
-          <p class="text-gray-500">${a.year || ""}</p>
+          <h3 class="font-semibold">${m.title}</h3>
+          <p class="text-gray-500">${m.year || ""}</p>
         </a>
       `).join("")
-    : "<p>No anime found.</p>";
+    : "<p>No manga found.</p>";
 }
 
-// Load genres (backend list)
+/* --------------------------
+   Load Genres
+--------------------------- */
 async function loadGenres() {
-  const res = await fetch(`${API}/anime/genres`);
+  const res = await fetch(`${API}/manga/genres`);
   const genres = await res.json();
 
   const select = document.getElementById("genre-select");
@@ -72,22 +77,26 @@ async function loadGenres() {
   });
 }
 
-// Event Listeners
+/* --------------------------
+   Event Listeners
+--------------------------- */
 document.getElementById("search").addEventListener("input", (e) => {
   const query = e.target.value;
   const genre = document.getElementById("genre-select").value;
-  loadAnime(query, genre);
+  loadManga(query, genre);
 });
 
 document.getElementById("genre-select").addEventListener("change", (e) => {
   const genre = e.target.value;
   const query = document.getElementById("search").value;
-  loadAnime(query, genre);
+  loadManga(query, genre);
 });
 
-// Initialize
+/* --------------------------
+   Initialize
+--------------------------- */
 loadGenres();
-loadAnime();
+loadManga();
 </script>
 
 <script>
