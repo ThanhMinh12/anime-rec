@@ -1,37 +1,45 @@
 version: "3.9"
+
 services:
-  postgres:
-    image: postgres:16
-    container_name: anime-postgres
+  backend:
+    image: 158259501560.dkr.ecr.us-east-2.amazonaws.com/manga-api:latest
+    container_name: manga-api
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ABCD1234
-      POSTGRES_DB: anime
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - manga-net
+    command uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   redis:
     image: redis:7
-    container_name: anime-redis
+    container_name: manga-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    networks:
+      -manga-net
 
-  backend:
-    build: ./backend
-    container_name: anime-backend
+  frontend:
+    image: 158259501560.dkr.ecr.us-east-2.amazonaws.com/manga-frontend:latest
+    container_name: manga-frontend
     restart: unless-stopped
-    env_file:
-      - ./backend/.env
+    networks:
+      - manga-net
+
+  nginx:
+    image: 158259501560.dkr.ecr.us-east-2.amazonaws.com/manga-nginx:latest
+    container_name: manga-nginx
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "80:80"
     depends_on:
-      - postgres
-      - redis
-    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+      - backend
+      - frontend
+    networks:
+      - manga-net
 
-volumes:
-  pg_data:
+networks:
+  manga-net:
+    name: manga-net

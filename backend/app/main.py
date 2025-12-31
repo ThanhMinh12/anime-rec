@@ -19,11 +19,11 @@ def on_startup():
     init_db()
     print("Database tables initialized")
 
-app.include_router(users.router)
-app.include_router(manga.router)
-app.include_router(reviews.router)
-app.include_router(recommendations.router)
-app.include_router(auth.router)
+app.include_router(users.router, prefix="/api")
+app.include_router(manga.router, prefix="/api")
+app.include_router(reviews.router, prefix="/api")
+app.include_router(recommendations.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 
 
 @app.get("/")

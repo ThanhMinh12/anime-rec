@@ -48,7 +48,7 @@ const API = "http://localhost:8000";
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
 
-fetch(`/manga/${id}`)
+fetch(`/api/manga/${id}`)
   .then(res => res.json())
   .then(m => {
     if (m.error) {
@@ -68,7 +68,7 @@ fetch(`/manga/${id}`)
    Load Reviews
 --------------------------- */
 async function loadReviews() {
-  const res = await fetch(`/reviews/manga/${id}`);
+  const res = await fetch(`/api/reviews/manga/${id}`);
   if (res.status === 404) {
     document.getElementById("reviews").innerHTML =
       "<p class='text-gray-500'>No reviews yet.</p>";
@@ -103,7 +103,7 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
     return;
   }
 
-  const res = await fetch(`/reviews/`, {
+  const res = await fetch(`/api/reviews/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -121,7 +121,7 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
 });
 
 
-fetch(`/recommendations/${id}`)
+fetch(`/api/recommendations/${id}`)
   .then(res => res.json())
   .then(list => {
     if (!Array.isArray(list)) {

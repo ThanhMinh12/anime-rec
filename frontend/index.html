@@ -26,7 +26,7 @@
 const API = "http://localhost:8000";
 
 
-fetch(`/manga/random`)
+fetch(`/api/manga/random`)
   .then(res => res.json())
   .then(manga => {
     document.getElementById("random").innerHTML = `
@@ -39,7 +39,7 @@ fetch(`/manga/random`)
   });
 
 
-fetch(`/manga/trending`)
+fetch(`/api/manga/trending`)
   .then(res => res.json())
   .then(data => {
     document.getElementById("trending").innerHTML = data

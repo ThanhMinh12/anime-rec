@@ -45,7 +45,7 @@ async function loadManga(query = "", genre = "") {
     url = `/manga/`;
   }
 
-  const res = await fetch(url);
+  const res = await fetch(`/api${url}`);
   const data = await res.json();
 
   document.getElementById("manga-list").innerHTML = Array.isArray(data)
@@ -61,7 +61,7 @@ async function loadManga(query = "", genre = "") {
 
 
 async function loadGenres() {
-  const res = await fetch(`/manga/genres`);
+  const res = await fetch(`/api/manga/genres`);
   const genres = await res.json();
 
   const select = document.getElementById("genre-select");
