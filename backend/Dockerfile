@@ -10,9 +10,11 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install --no-cache-dir uv
 
-COPY . /app
+COPY pyproject.toml uv.lock ./
 
 RUN uv sync --frozen
+
+COPY app ./app
 
 EXPOSE 8000
 
