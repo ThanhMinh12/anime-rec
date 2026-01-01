@@ -41,8 +41,12 @@ jobs:
       run: |
         IMAGE_TAG=${GITHUB_SHA}
         IMAGE_URI=158259501560.dkr.ecr.us-east-2.amazonaws.com/${{ matrix.service.name }}
-        docker build -t $IMAGE_URI:$IMAGE_TAG ${{ matrix.service.context }}
+        docker build \
+          -t $IMAGE_URI:$IMAGE_TAG \
+          -t $IMAGE_URI:latest \
+          ${{ matrix.service.context }}
         docker push $IMAGE_URI:$IMAGE_TAG
+        docker push $IMAGE_URI:latest
 
 
   deploy:
