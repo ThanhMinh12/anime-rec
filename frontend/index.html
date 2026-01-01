@@ -3,50 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Anime Rec</title>
+  <title>Manga Rec</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
 <nav class="p-4 bg-black text-white flex gap-4">
-  <a href="index.html" class="font-bold">AnimeRec</a>
-  <a href="anime.html">Anime</a>
+  <a href="index.html" class="font-bold">MangaRec</a>
+  <a href="manga.html">Manga</a>
   <span id="auth-links" class="ml-auto"></span>
 </nav>
 
 <div class="p-6">
-  <h1 class="text-3xl font-bold mb-4">Random Anime</h1>
+  <h1 class="text-3xl font-bold mb-4">Random Manga</h1>
   <div id="random" class="border p-4 rounded bg-white"></div>
 
-  <h1 class="text-3xl font-bold mt-8 mb-4">Trending Anime</h1>
+  <h1 class="text-3xl font-bold mt-8 mb-4">Trending Manga</h1>
   <div id="trending" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 </div>
 
 <script>
 const API = "http://localhost:8000";
 
-// RANDOM anime
-fetch(`${API}/anime/random`)
+
+fetch(`/api/manga/random`)
   .then(res => res.json())
-  .then(anime => {
+  .then(manga => {
     document.getElementById("random").innerHTML = `
-      <h2 class="text-xl font-semibold">${anime.title}</h2>
-      <p class="text-gray-600">${anime.year || ""}</p>
-      <a class="text-blue-600" href="anime-detail.html?id=${anime.id}">
+      <h2 class="text-xl font-semibold">${manga.title}</h2>
+      <p class="text-gray-600">${manga.year || ""}</p>
+      <a class="text-blue-600" href="manga-detail.html?id=${manga.id}">
         View Details →
       </a>
     `;
   });
 
-// TRENDING
-fetch(`${API}/anime/trending`)
+
+fetch(`/api/manga/trending`)
   .then(res => res.json())
   .then(data => {
     document.getElementById("trending").innerHTML = data
       .map(item => `
-        <a href="anime-detail.html?id=${item.anime.id}" 
+        <a href="manga-detail.html?id=${item.manga.id}" 
            class="border p-4 rounded bg-white hover:bg-gray-100">
-          <h3 class="font-semibold">${item.anime.title}</h3>
+          <h3 class="font-semibold">${item.manga.title}</h3>
           <p class="text-gray-500">${item.reviews} reviews</p>
         </a>
       `)

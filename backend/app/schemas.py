@@ -19,7 +19,7 @@ class UserOut(BaseModel):
     class Config:
         from_attributes = True
 
-class AnimeCreate(BaseModel):
+"""class AnimeCreate(BaseModel):
     title: str
     synopsis: Optional[str] = None
     image_url: Optional[str] = None
@@ -30,17 +30,17 @@ class AnimeCreate(BaseModel):
 class AnimeOut(AnimeCreate):
     id: int
     class Config:
-        from_attributes = True
+        from_attributes = True"""
 
 class ReviewCreate(BaseModel):
-    anime_id: int
+    manga_id: int
     rating: int
     text: Optional[str] = None
 
 class ReviewOut(BaseModel):
     id: int
     user_id: int
-    anime_id: int
+    manga_id: int
     rating: int
     text: Optional[str]
     class Config:

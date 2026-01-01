@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select, func
 from ..db import get_session
-from ..models import Review, User, Anime
+from ..models import Review, User, Manga
 from ..auth import get_current_user
 from ..schemas import ReviewCreate
 
@@ -14,7 +14,7 @@ def add_review(payload: ReviewCreate,
                user=Depends(get_current_user)):
     review = Review(
         user_id=user["id"],
-        anime_id=payload.anime_id,
+        manga_id=payload.manga_id,
         rating=payload.rating,
         text=payload.text
     )
@@ -28,21 +28,21 @@ def list_reviews(session: Session = Depends(get_session)):
     return session.exec(select(Review)).all()
 
 
-@router.get("/anime/{anime_id}")
-def get_reviews_for_anime(anime_id: int, session: Session = Depends(get_session)):
-    reviews = session.exec(select(Review).where(Review.anime_id == anime_id)).all()
+@router.get("/manga/{manga_id}")
+def get_reviews_for_manga(manga_id: int, session: Session = Depends(get_session)):
+    reviews = session.exec(select(Review).where(Review.manga_id == manga_id)).all()
     if not reviews:
         raise HTTPException(status_code=404, detail="No reviews")
     return reviews
 
 
-@router.get("/anime/{anime_id}/average-rating")
-def get_average_rating(anime_id: int, session: Session = Depends(get_session)):
+@router.get("/manga/{manga_id}/average-rating")
+def get_average_rating(manga_id: int, session: Session = Depends(get_session)):
     avg_score = session.exec(
-        select(func.avg(Review.rating)).where(Review.anime_id == anime_id)
+        select(func.avg(Review.rating)).where(Review.manga_id == manga_id)
     ).first()
 
     return {
-        "anime_id": anime_id,
+        "manga_id": manga_id,
         "average_rating": float(avg_score) if avg_score is not None else None,
     }

@@ -1,7 +1,7 @@
 [project]
 name = "anime-rec"
 version = "0.1.0"
-description = "Anime recommendation website backend (FastAPI + Postgres + Redis)"
+description = "zkfhkdsa"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115.0",
@@ -19,6 +19,8 @@ dependencies = [
   "python-jose>=3.5.0",
   "passlib[bcrypt]==1.7.4",
   "bcrypt==3.2.2",
+  "beautifulsoup4==4.14.2",
+  "lxml>=6.0.2",
 ]
 
 [build-system]
