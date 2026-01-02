@@ -76,6 +76,13 @@ def clean_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+def normalize_wiki_genres(raw: str) -> list[str]:
+    if not raw:
+        return []
+    cleaned = re.sub(r"\[\s*\d+\s*\]", "", raw)
+    parts = re.split(r"\s{2,}", cleaned)
+    return [p.strip() for p in parts if p.strip()]
+
 
 async def scrape_manga_page(url: str):
     await asyncio.sleep(0.4)
