@@ -31,9 +31,6 @@
 </div>
 
 <script>
-const API = "http://localhost:8000";
-
-
 async function loadManga(query = "", genre = "") {
   let url = "";
 
@@ -48,20 +45,19 @@ async function loadManga(query = "", genre = "") {
   const res = await fetch(`/api${url}`);
   const data = await res.json();
 
-  const list = data.results || [];
+  const list = data.results || data || [];
 
   document.getElementById("manga-list").innerHTML =
     list.length
       ? list.map(m => `
-          <a href="manga-detail.html?id=${m.id}" 
-            class="border p-4 rounded bg-white hover:bg-gray-100">
+          <a href="manga-detail.html?id=${m.id}"
+             class="border p-4 rounded bg-white hover:bg-gray-100">
             <h3 class="font-semibold">${m.title}</h3>
-            <p class="text-gray-500">${m.year || ""}</p>
+            <p class="text-gray-500">${m.year ?? ""}</p>
           </a>
         `).join("")
       : "<p>No manga found.</p>";
 }
-
 
 async function loadGenres() {
   const res = await fetch(`/api/manga/genres`);
@@ -77,17 +73,12 @@ async function loadGenres() {
 }
 
 document.getElementById("search").addEventListener("input", (e) => {
-  const query = e.target.value;
-  const genre = document.getElementById("genre-select").value;
-  loadManga(query, genre);
+  loadManga(e.target.value, document.getElementById("genre-select").value);
 });
 
 document.getElementById("genre-select").addEventListener("change", (e) => {
-  const genre = e.target.value;
-  const query = document.getElementById("search").value;
-  loadManga(query, genre);
+  loadManga(document.getElementById("search").value, e.target.value);
 });
-
 
 loadGenres();
 loadManga();
@@ -100,7 +91,10 @@ function updateAuthLinks() {
 
   if (token) {
     links.innerHTML = `
-      <button onclick="logout()" class="text-red-400 hover:text-red-300">Logout</button>
+      <button onclick="logout()"
+        class="text-red-400 hover:text-red-300">
+        Logout
+      </button>
     `;
   } else {
     links.innerHTML = `
@@ -117,6 +111,7 @@ function logout() {
 
 updateAuthLinks();
 </script>
+
 
 </body>
 </html>
