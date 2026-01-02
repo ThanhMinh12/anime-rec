@@ -48,15 +48,18 @@ async function loadManga(query = "", genre = "") {
   const res = await fetch(`/api${url}`);
   const data = await res.json();
 
-  document.getElementById("manga-list").innerHTML = Array.isArray(data)
-    ? data.map(m => `
-        <a href="manga-detail.html?id=${m.id}" 
-           class="border p-4 rounded bg-white hover:bg-gray-100">
-          <h3 class="font-semibold">${m.title}</h3>
-          <p class="text-gray-500">${m.year || ""}</p>
-        </a>
-      `).join("")
-    : "<p>No manga found.</p>";
+  const list = data.results || [];
+
+  document.getElementById("manga-list").innerHTML =
+    list.length
+      ? list.map(m => `
+          <a href="manga-detail.html?id=${m.id}" 
+            class="border p-4 rounded bg-white hover:bg-gray-100">
+            <h3 class="font-semibold">${m.title}</h3>
+            <p class="text-gray-500">${m.year || ""}</p>
+          </a>
+        `).join("")
+      : "<p>No manga found.</p>";
 }
 
 
