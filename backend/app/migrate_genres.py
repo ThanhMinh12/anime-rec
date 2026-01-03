@@ -47,7 +47,7 @@ with Session(engine) as session:
                     session.refresh(genre)
 
                 genre_cache[g] = genre.id
-            stmt = insert(MangaGenre).values(manga.id, genre_cache[g]).on_conflict_do_nothing()
+            stmt = insert(MangaGenre).values({"manga_id": manga.id, "genre_id": genre_cache[g]}).on_conflict_do_nothing()
 
             session.exec(stmt)
 
