@@ -50,3 +50,13 @@ class Review(SQLModel, table=True):
     rating: int = Field(ge=1, le=10)
     text: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+
+class Genre(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+
+class MangaGenre(SQLModel, table=True):
+    manga_id: int = Field(foreign_key="manga.id", primary_key=True)
+    genre_id: int = Field(foreign_key="genre.id", primary_key=True)
