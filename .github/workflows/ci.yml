@@ -63,5 +63,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY}}
           script: |
             cd ~
+            docker image prune -a -f
             docker compose pull
             docker compose up -d --force-recreate
