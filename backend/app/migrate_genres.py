@@ -1,8 +1,9 @@
 import re
 from sqlmodel import Session, create_engine, select
-from .models import Manga, Genre, MangaGenre
+from app.models import Manga, Genre, MangaGenre
 from dotenv import load_dotenv
 import os
+from sqlalchemy.dialects.postgresql import insert
 
 try:
     load_dotenv()
@@ -26,6 +27,7 @@ def parse_genres(raw: str) -> list[str]:
 
 with Session(engine) as session:
     mangas = session.exec(select(Manga)).all()
+    genre_cache: dict[str, int] = {}
 
     genre_cache = {}
 
@@ -45,12 +47,8 @@ with Session(engine) as session:
                     session.refresh(genre)
 
                 genre_cache[g] = genre.id
+            stmt = insert(MangaGenre).values(manga.id, genre_cache[g]).on_conflict_do_nothing()
 
-            session.add(
-                MangaGenre(
-                    manga_id=manga.id,
-                    genre_id=genre_cache[g]
-                )
-            )
+            session.exec(stmt)
 
     session.commit()
