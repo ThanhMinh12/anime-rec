@@ -32,6 +32,7 @@ class Manga(SQLModel, table=True):
     synopsis: Optional[str] = None
     year: Optional[int] = None
     score: Optional[float] = None
+    genres: Optional[str] = None
     author: Optional[str] = None
     illustrator: Optional[str] = None
     publisher: Optional[str] = None
