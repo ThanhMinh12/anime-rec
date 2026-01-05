@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 from ..db import get_session
-from ..models import Review, Manga
+from ..models import Review, Manga, Genre, MangaGenre
 from sqlalchemy import func
 
 router = APIRouter(prefix="/manga", tags=["manga"])
@@ -20,9 +20,14 @@ def list_manga(
         stmt = stmt.where(Manga.title.ilike(f"%{q}%"))
 
     if genre:
-        stmt = stmt.where(Manga.genres.ilike(f"%{genre}%"))
+        stmt = (
+            stmt
+            .join(MangaGenre, Manga.id == MangaGenre.manga_id)
+            .join(Genre, Genre.id == MangaGenre.genre_id)
+            .where(Genre.name.ilike(f"%{genre}%"))
+        )
 
-    stmt = stmt.limit(limit).offset(offset)
+    stmt = stmt.distinct().limit(limit).offset(offset)
 
     return session.exec(stmt).all()
 
@@ -56,7 +61,9 @@ def get_by_genre(
 ):
     stmt = (
         select(Manga)
-        .where(Manga.genres.ilike(f"%{genre}%"))
+        .join(MangaGenre, Manga.id == MangaGenre.manga_id)
+        .join(Genre, Genre.id == MangaGenre.genre_id)
+        .where(Genre.name.ilike(f"%{genre}%"))
         .limit(limit)
         .offset(offset)
     )
@@ -64,16 +71,8 @@ def get_by_genre(
 
 @router.get("/genres")
 def list_genres(session: Session = Depends(get_session)):
-    stmt = select(Manga.genres)
-    rows = session.exec(stmt).all()
-
-    genre_set = set()
-    for row in rows:
-        if row:
-            for g in row.split(","):
-                genre_set.add(g.strip())
-
-    return sorted(genre_set)
+    stmt = select(Genre).order_by(Genre.name)
+    return session.exec(stmt).all()
 
 @router.get("/random")
 def random_manga(session: Session = Depends(get_session)):
