@@ -32,20 +32,15 @@
 
 <script>
 async function loadManga(query = "", genre = "") {
-  let url = "";
+  const params = new URLSearchParams();
+  if (query) params.append("q", query);
+  if (genre) params.append("genre", genre);
 
-  if (genre) {
-    url = `/manga/genre/${encodeURIComponent(genre)}`;
-  } else if (query) {
-    url = `/manga/search?q=${encodeURIComponent(query)}`;
-  } else {
-    url = `/manga/`;
-  }
-
-  const res = await fetch(`/api${url}`);
+  const url = `/api/manga/?${params.toString()}`;
+  const res = await fetch(url);
   const data = await res.json();
 
-  const list = data.results || data || [];
+  const list = Array.isArray(data) ? data : data.results || [];
 
   document.getElementById("manga-list").innerHTML =
     list.length
@@ -59,6 +54,7 @@ async function loadManga(query = "", genre = "") {
       : "<p>No manga found.</p>";
 }
 
+
 async function loadGenres() {
   const res = await fetch(`/api/manga/genres`);
   const genres = await res.json();
@@ -66,11 +62,12 @@ async function loadGenres() {
   const select = document.getElementById("genre-select");
   genres.forEach(g => {
     const opt = document.createElement("option");
-    opt.value = g;
-    opt.textContent = g;
+    opt.value = g.name;
+    opt.textContent = g.name;
     select.appendChild(opt);
   });
 }
+
 
 document.getElementById("search").addEventListener("input", (e) => {
   loadManga(e.target.value, document.getElementById("genre-select").value);

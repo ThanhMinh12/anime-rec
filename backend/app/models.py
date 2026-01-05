@@ -32,7 +32,6 @@ class Manga(SQLModel, table=True):
     synopsis: Optional[str] = None
     year: Optional[int] = None
     score: Optional[float] = None
-    genres: Optional[str] = None
     author: Optional[str] = None
     illustrator: Optional[str] = None
     publisher: Optional[str] = None
@@ -61,4 +60,4 @@ class Genre(SQLModel, table=True):
 class MangaGenre(SQLModel, table=True):
     __tablename__ = "manga_genres"
     manga_id: int = Field(foreign_key="manga.id", primary_key=True)
-    genre_id: int = Field(foreign_key="genre.id", primary_key=True)
+    genre_id: int = Field(foreign_key="genres.id", primary_key=True)

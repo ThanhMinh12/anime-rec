@@ -1,36 +1,37 @@
 from sqlmodel import Session, select
+from sqlalchemy import func
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from .models import Manga, Review
+from .models import Manga, Review, Genre, MangaGenre
 
 def get_manga_features(session: Session):
     mangas = session.exec(select(Manga)).all()
+    genres = session.exec(select(Genre)).all()
+    manga_genres = session.exec(select(MangaGenre)).all()
+    manga_to_genres = {}
+    genre_index = {g.id: i for i, g in enumerate(genres)}
+    for manga_gen in manga_genres:
+        manga_to_genres.setdefault(manga_gen.manga_id, []).append(manga_gen.genre_id)
+    rat_map = dict(
+        session.exec(
+            select(Review.manga_id, func.avg(Review.rating))
+            .group_by(Review.manga_id)
+        ).all()
+    )
+
     features = []
     ids = []
-    genre_set = set()
     for manga in mangas:
-        if manga.genres:
-            genre_set.update([g.strip().lower() for g in manga.genres.split(",")])
-    genre_list = sorted(genre_set)
-    genre_index = {g: i for i, g in enumerate(genre_list)}
+        avg_score = rat_map.get(manga.id, 0)
+        avg_score_norm = avg_score / 10
+        year_norm = (manga.year - 1980) / 50 if manga.year else 0
 
+        gen_vec = np.zeros(len(genres))
+        for gen_id in manga_to_genres.get(manga.id, []):
+            if gen_id in genre_index:
+                gen_vec[genre_index[gen_id]] = 1
 
-    for manga in mangas:
-        avg_rating = session.exec(
-            select(Review.rating).where(Review.manga_id == manga.id)
-        ).all()
-        avg_score = np.mean(avg_rating) if avg_rating else 0.0
-
-        year_norm = (manga.year - 1980) / 50.0 if manga.year else 0.0
-
-        gvec = np.zeros(len(genre_list))
-        if manga.genres:
-            for g in manga.genres.split(","):
-                g = g.strip().lower()
-                if g in genre_index:
-                    gvec[genre_index[g]] = 1.0
-
-        vec = np.concatenate(([avg_score, year_norm], gvec))
+        vec = np.concatenate(([avg_score, year_norm], gen_vec))
         features.append(vec)
         ids.append(manga.id)
 
