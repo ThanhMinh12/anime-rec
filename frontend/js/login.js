@@ -1,22 +1,24 @@
+import { loadNavbar } from "./navbar.js";
 import { apiFetch } from "./api.js";
-document.getElementById("login-form").onsubmit = async (e) => {
+import { setToken } from "./auth.js";
+
+await loadNavbar();
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-  const username = usernameInput.value;
-  const password = passwordInput.value;
+
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
   try {
     const res = await apiFetch("/auth/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({ username, password }),
     });
-    localStorage.setItem("token", res.access_token);
+
+    setToken(res.access_token);
     window.location.href = "/pages/index.html";
   } catch (err) {
-    alert("Invalid username or password");
+    alert(err?.detail || "Login failed");
   }
-};
+});

@@ -6,21 +6,17 @@
   <title>Manga Details</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100 text-gray-900">
 
+  <div id="navbar"></div>
 
   <main class="p-6 max-w-4xl mx-auto">
-
     <section id="manga" class="mb-10"></section>
 
     <section>
       <h2 class="text-2xl font-semibold mb-3">Reviews</h2>
 
-      <form
-        id="review-form"
-        class="space-y-4 bg-white p-4 rounded border mb-4"
-      >
+      <form id="review-form" class="space-y-4 bg-white p-4 rounded border mb-4">
         <input
           id="rating"
           type="number"
@@ -30,7 +26,6 @@
           placeholder="Rating (1–10)"
           class="border rounded p-2 w-full"
         />
-
         <textarea
           id="review-text"
           rows="3"
@@ -38,24 +33,18 @@
           class="border rounded p-2 w-full"
         ></textarea>
 
-        <button
-          type="submit"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           Submit Review
         </button>
       </form>
 
       <div id="reviews" class="space-y-3"></div>
     </section>
+
     <section class="mt-10">
       <h2 class="text-2xl font-semibold mb-4">Related Manga</h2>
-      <div
-        id="related"
-        class="grid grid-cols-2 md:grid-cols-4 gap-4"
-      ></div>
+      <div id="related" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
     </section>
-
   </main>
 
   <script type="module" src="/js/manga-detail.js"></script>

@@ -1,26 +1,24 @@
+import { loadNavbar } from "./navbar.js";
 import { apiFetch } from "./api.js";
+import { setToken } from "./auth.js";
 
-document.getElementById("signup-form").onsubmit = async (e) => {
+await loadNavbar();
+
+document.getElementById("signup-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-
-  const username = usernameInput.value;
-  const password = passwordInput.value;
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
   try {
     const res = await apiFetch("/auth/signup", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({ username, password }),
     });
 
-    localStorage.setItem("token", res.access_token);
+    setToken(res.access_token);
     window.location.href = "/pages/index.html";
   } catch (err) {
-    alert("Signup failed (username may already exist)");
+    alert(err?.detail || "Signup failed");
   }
-};
+});

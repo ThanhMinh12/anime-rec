@@ -1,9 +1,15 @@
 import { loadNavbar } from "./navbar.js";
 import { apiFetch } from "./api.js";
+import { isLoggedIn } from "./auth.js";
 
 await loadNavbar();
 
 const id = new URLSearchParams(window.location.search).get("id");
+if (!id) {
+  alert("Invalid manga page (missing id).");
+  window.location.href = "/pages/manga.html";
+  throw new Error("Missing manga id");
+}
 
 const manga = await apiFetch(`/manga/${id}`);
 document.getElementById("manga").innerHTML = `
@@ -21,46 +27,49 @@ async function loadReviews() {
         <p>${r.text || ""}</p>
       </div>
     `).join("");
-  } catch {
+  } catch (err) {
     document.getElementById("reviews").innerHTML =
       "<p class='text-gray-500'>No reviews yet.</p>";
   }
 }
 
-loadReviews();
-
-
 async function loadRelatedManga() {
   try {
     const data = await apiFetch(`/recommendations/${id}`);
     const recs = data.recommendations;
-    if (!recs || recs.length === 0) {
+
+    if (!Array.isArray(recs) || recs.length === 0) {
       document.getElementById("related").innerHTML =
         "<p class='text-gray-500'>No related manga found.</p>";
       return;
     }
+
     document.getElementById("related").innerHTML = recs.map(m => `
-      <a
-        href="manga-detail.html?id=${m.id}"
-        class="border p-3 rounded bg-white hover:bg-gray-100"
-      >
+      <a href="/pages/manga-detail.html?id=${m.id}"
+         class="border p-3 rounded bg-white hover:bg-gray-100">
         <h3 class="font-semibold">${m.title}</h3>
         <p class="text-sm text-gray-500">${m.year ?? ""}</p>
       </a>
     `).join("");
-  } catch (err) {
+  } catch {
     document.getElementById("related").innerHTML =
       "<p class='text-gray-500'>No related manga found.</p>";
   }
 }
 
-
+await loadReviews();
 await loadRelatedManga();
 
 const form = document.getElementById("review-form");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  if (!isLoggedIn()) {
+    alert("Please log in to submit a review.");
+    window.location.href = "/pages/login.html";
+    return;
+  }
 
   const rating = Number(document.getElementById("rating").value);
   const text = document.getElementById("review-text").value;
@@ -73,20 +82,17 @@ form.addEventListener("submit", async (e) => {
   try {
     await apiFetch("/reviews", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
         manga_id: Number(id),
         rating,
         text: text || null
-      })
+      }),
     });
 
     form.reset();
     await loadReviews();
   } catch (err) {
-    console.error(err);
-    alert("Pls log in");
+    console.error("Submit review error:", err);
+    alert(err?.detail || "Could not submit review.");
   }
 });

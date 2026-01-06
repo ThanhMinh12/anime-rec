@@ -6,42 +6,22 @@
   <title>Sign Up</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100 text-gray-900">
 
-  <!-- Navbar injected by JS -->
+  <div id="navbar"></div>
 
   <main class="max-w-md mx-auto mt-12 bg-white p-6 rounded shadow">
     <h1 class="text-2xl font-bold mb-6">Create Account</h1>
 
     <form id="signup-form" class="space-y-4">
-      <input
-        id="username"
-        required
-        placeholder="Username"
-        class="border p-2 rounded w-full"
-      />
-
-      <input
-        id="password"
-        type="password"
-        required
-        placeholder="Password"
-        class="border p-2 rounded w-full"
-      />
-
-      <button
-        class="bg-green-600 text-white p-2 w-full rounded hover:bg-green-700"
-      >
-        Sign Up
-      </button>
+      <input id="username" required placeholder="Username" class="border p-2 rounded w-full" />
+      <input id="password" type="password" required placeholder="Password" class="border p-2 rounded w-full" />
+      <button class="bg-green-600 text-white p-2 w-full rounded hover:bg-green-700">Sign Up</button>
     </form>
 
     <p class="mt-4 text-center text-sm">
       Already have an account?
-      <a href="/pages/login.html" class="text-blue-600">
-        Login
-      </a>
+      <a href="/pages/login.html" class="text-blue-600">Login</a>
     </p>
   </main>
 
