@@ -1,15 +1,26 @@
-import { apiFetch } from "./api";
+import { apiFetch } from "./api.js";
+
 document.getElementById("signup-form").onsubmit = async (e) => {
   e.preventDefault();
 
-  const username = username.value;
-  const password = password.value;
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
 
-  const res = await apiFetch("/auth/signup", {
-    method: "POST",
-    body: JSON.stringify({ username, password }),
-  });
+  const username = usernameInput.value;
+  const password = passwordInput.value;
 
-  localStorage.setItem("token", res.access_token);
-  window.location.href = "/pages/index.html";
+  try {
+    const res = await apiFetch("/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    localStorage.setItem("token", res.access_token);
+    window.location.href = "/pages/index.html";
+  } catch (err) {
+    alert("Signup failed (username may already exist)");
+  }
 };
