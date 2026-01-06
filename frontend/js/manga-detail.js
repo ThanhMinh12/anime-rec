@@ -47,13 +47,19 @@ async function loadRelatedManga() {
       return;
     }
 
-    document.getElementById("related").innerHTML = recs.map(m => `
-      <a href="/pages/manga-detail.html?id=${m.id}"
-         class="border p-3 rounded bg-white hover:bg-gray-100">
-        <h3 class="font-semibold">${m.title}</h3>
-        <p class="text-sm text-gray-500">${m.year ?? ""}</p>
-      </a>
-    `).join("");
+    const relatedEl = document.getElementById("related");
+    if (!relatedEl) {
+      console.error("Related container missing from DOM");
+      return;
+    }
+
+    relatedEl.innerHTML = recs.map(m => `
+    <a href="/pages/manga-detail.html?id=${m.id}"
+       class="border p-3 rounded bg-white hover:bg-gray-100">
+      <h3 class="font-semibold">${m.title}</h3>
+      <p class="text-sm text-gray-500">${m.year ?? ""}</p>
+    </a>
+  `).join("");
 
   } catch (err) {
     if (err?.detail?.includes("no similar")) {
