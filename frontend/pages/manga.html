@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manga</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+
+  <main class="p-6">
+    <h1 class="text-3xl font-bold mb-4">Manga</h1>
+
+    <div class="flex gap-4 mb-6">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search manga..."
+        class="border p-2 rounded w-full"
+      />
+
+      <select
+        id="genre-select"
+        class="border p-2 rounded min-w-[180px]"
+      >
+        <option value="">All Genres</option>
+      </select>
+    </div>
+
+    <div
+      id="manga-list"
+      class="grid grid-cols-2 md:grid-cols-4 gap-4"
+    ></div>
+  </main>
+
+  <script type="module" src="/js/manga.js"></script>
+</body>
+</html>
