@@ -122,11 +122,16 @@ document.getElementById("review-form").addEventListener("submit", async (e) => {
 
 
 fetch(`/api/recommendations/${id}`)
-  .then(res => res.json())
-  .then(list => {
-    if (!Array.isArray(list)) {
+  .then(res => {
+    if (!res.ok) throw new Error("No recommendations");
+    return res.json();
+  })
+  .then(data => {
+    const list = data.recommendations;
+
+    if (!Array.isArray(list) || list.length === 0) {
       document.getElementById("related").innerHTML =
-        "<p>No related manga found.</p>";
+        "<p class='text-gray-500'>No related manga found.</p>";
       return;
     }
 
@@ -137,6 +142,10 @@ fetch(`/api/recommendations/${id}`)
           <h3 class="font-semibold">${m.title}</h3>
         </a>
       `).join("");
+  })
+  .catch(() => {
+    document.getElementById("related").innerHTML =
+      "<p class='text-gray-500'>No related manga found.</p>";
   });
 
 
