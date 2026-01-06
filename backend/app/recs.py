@@ -31,7 +31,7 @@ def get_manga_features(session: Session):
             if gen_id in genre_index:
                 gen_vec[genre_index[gen_id]] = 1
 
-        vec = np.concatenate(([avg_score, year_norm], gen_vec))
+        vec = np.concatenate(([avg_score_norm, year_norm], gen_vec))
         features.append(vec)
         ids.append(manga.id)
 
@@ -43,14 +43,17 @@ def recommend_similar(manga_id: int, session: Session, top_n: int = 5):
         return []
     idx = ids.index(manga_id)
     sims = cosine_similarity([features[idx]], features)[0]
-    sorted_idx = np.argsort(sims)[::-1]  # descending
+    sorted_idx = np.argsort(sims)[::-1]
     results = []
-    for i in sorted_idx[1 : top_n + 1]:  # skip self
+    for i in sorted_idx[1 : top_n + 1]:
         similar_manga = session.get(Manga, ids[i])
+        if not similar_manga:
+            continue
         results.append(
             {
                 "id": similar_manga.id,
                 "title": similar_manga.title,
+                "year": similar_manga.year,
                 "score": float(sims[i]),
             }
         )
