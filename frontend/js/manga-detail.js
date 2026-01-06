@@ -36,9 +36,12 @@ async function loadReviews() {
 async function loadRelatedManga() {
   try {
     const data = await apiFetch(`/recommendations/${id}`);
-    const recs = data.recommendations;
 
-    if (!Array.isArray(recs) || recs.length === 0) {
+    const recs = Array.isArray(data.recommendations)
+      ? data.recommendations
+      : [];
+
+    if (recs.length === 0) {
       document.getElementById("related").innerHTML =
         "<p class='text-gray-500'>No related manga found.</p>";
       return;
@@ -51,11 +54,20 @@ async function loadRelatedManga() {
         <p class="text-sm text-gray-500">${m.year ?? ""}</p>
       </a>
     `).join("");
-  } catch {
+
+  } catch (err) {
+    if (err?.detail?.includes("no similar")) {
+      document.getElementById("related").innerHTML =
+        "<p class='text-gray-500'>No related manga found.</p>";
+      return;
+    }
+
+    console.error("Failed to load recommendations:", err);
     document.getElementById("related").innerHTML =
-      "<p class='text-gray-500'>No related manga found.</p>";
+      "<p class='text-red-500'>Failed to load related manga.</p>";
   }
 }
+
 
 await loadReviews();
 await loadRelatedManga();
