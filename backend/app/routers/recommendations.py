@@ -14,6 +14,6 @@ def get_recommendations(manga_id: int, session: Session = Depends(get_session)):
         return {"manga_id": manga_id, "recommendations": cached, "cached": True}
     recs = recommend_similar(manga_id, session)
     if not recs:
-        raise HTTPException(status_code=404, detail="manga not found or no similar titles")
+        return {"manga_id": manga_id, "recommendations": [], "cached": False}
     cache_set(cache_key, recs)
     return {"manga_id": manga_id, "recommendations": recs, "cached": False}

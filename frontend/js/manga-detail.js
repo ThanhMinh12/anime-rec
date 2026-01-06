@@ -34,46 +34,34 @@ async function loadReviews() {
 }
 
 async function loadRelatedManga() {
+  let data;
+
   try {
-    const data = await apiFetch(`/recommendations/${id}`);
+    data = await apiFetch(`/recommendations/${id}`);
+  } catch {
+    document.getElementById("related").innerHTML =
+      "<p class='text-gray-500'>No related manga found.</p>";
+    return;
+  }
 
-    const recs = Array.isArray(data.recommendations)
-      ? data.recommendations
-      : [];
+  const recs = Array.isArray(data.recommendations)
+    ? data.recommendations
+    : [];
 
-    if (recs.length === 0) {
-      document.getElementById("related").innerHTML =
-        "<p class='text-gray-500'>No related manga found.</p>";
-      return;
-    }
+  if (recs.length === 0) {
+    document.getElementById("related").innerHTML =
+      "<p class='text-gray-500'>No related manga found.</p>";
+    return;
+  }
 
-    const relatedEl = document.getElementById("related");
-    if (!relatedEl) {
-      console.error("Related container missing from DOM");
-      return;
-    }
-
-    relatedEl.innerHTML = recs.map(m => `
+  document.getElementById("related").innerHTML = recs.map(m => `
     <a href="/pages/manga-detail.html?id=${m.id}"
        class="border p-3 rounded bg-white hover:bg-gray-100">
       <h3 class="font-semibold">${m.title}</h3>
       <p class="text-sm text-gray-500">${m.year ?? ""}</p>
     </a>
   `).join("");
-
-  } catch (err) {
-    if (err?.detail?.includes("no similar")) {
-      document.getElementById("related").innerHTML =
-        "<p class='text-gray-500'>No related manga found.</p>";
-      return;
-    }
-
-    console.error("Failed to load recommendations:", err);
-    document.getElementById("related").innerHTML =
-      "<p class='text-red-500'>Failed to load related manga.</p>";
-  }
 }
-
 
 await loadReviews();
 await loadRelatedManga();
