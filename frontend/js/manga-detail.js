@@ -68,7 +68,7 @@ async function loadRelatedManga() {
 
 async function loadAverageRating() {
   try {
-    const data = await apiFetch(`/manga/${id}/average-rating`);
+    const data = await apiFetch(`/reviews/manga/${id}/average-rating`);
 
     const el = document.getElementById("avg-rating");
     el.className = "font-semibold";
