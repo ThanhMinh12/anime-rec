@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 import asyncio
 import re
-
+import unicodedata
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -27,21 +27,18 @@ def extract_plot_synopsis(soup: BeautifulSoup):
 
     PLOT_SECTION_NAMES = ["plot", "synopsis", "story", "overview", "premise", "summary"]
 
-    # Case 1: <h2><span class="mw-headline">Plot</span></h2>
     for header in soup.find_all(["h2", "h3"]):
         span = header.find("span", class_="mw-headline")
         if span:
             if clean_text(span.get_text()).lower() in PLOT_SECTION_NAMES:
                 return first_paragraph_after(header)
 
-    # Case 2: <div class="mw-heading"><h2 id="Plot"></h2></div>
     for div in soup.find_all("div", class_=lambda c: c and "mw-heading" in c):
         h = div.find(["h2", "h3"])
         if h:
             if clean_text(h.get_text()).lower() in PLOT_SECTION_NAMES:
                 return first_paragraph_after(div)
 
-    # Case 3: <h2 id="Plot">Plot</h2>
     for header in soup.find_all(["h2", "h3"]):
         if clean_text(header.get_text()).lower() in PLOT_SECTION_NAMES:
             return first_paragraph_after(header)
@@ -51,20 +48,14 @@ def extract_plot_synopsis(soup: BeautifulSoup):
 
 
 def first_paragraph_after(node):
-    """
-    Walk forward through ALL siblings until the FIRST <p> tag appears.
-    Return its cleaned text.
-    """
 
     sib = node.find_next_sibling()
 
     while sib:
         if sib.name == "p":
             text = clean_text(sib.get_text(" ", strip=True))
-            if len(text) > 20:  # allow shorter paragraphs now
+            if len(text) > 20:
                 return text
-
-        # continue scanning, regardless of div / h2 / h3 / notes / whitespace
         sib = sib.find_next_sibling()
 
     return None
@@ -76,12 +67,17 @@ def clean_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+def normalize_genre_name(s: str) -> str:
+    s = unicodedata.normalize("NFKD", s)
+    s = s.encode("ascii", "ignore").decode("ascii")
+    return s.strip()
+
 def normalize_wiki_genres(raw: str) -> list[str]:
     if not raw:
         return []
     cleaned = re.sub(r"\[\s*\d+\s*\]", "", raw)
     parts = re.split(r"\s{2,}", cleaned)
-    return [p.strip() for p in parts if p.strip()]
+    return [normalize_genre_name(p) for p in parts if p.strip()]
 
 
 async def scrape_manga_page(url: str):
@@ -99,21 +95,21 @@ async def scrape_manga_page(url: str):
 
     synopsis = extract_plot_synopsis(soup)
 
-    # ------ Extractor FIXED for Wikipedia Infobox ------
+
     def extract_any(*labels):
         if not info:
             return None
 
-        for th in info.find_all("th"):  # ANY th (no class filtering)
+        for th in info.find_all("th"):
             th_text = clean_text(th.get_text(" ", strip=True)).lower()
 
             for label in labels:
                 if label.lower() in th_text:
-                    # 1. Preferred: td.infobox-data
+
                     td = th.find_next_sibling("td", class_="infobox-data")
                     if td:
                         return clean_text(td.get_text(" ", strip=True))
-                    # 2. Fallback: ANY td
+
                     td = th.find_next_sibling("td")
                     if td:
                         return clean_text(td.get_text(" ", strip=True))
