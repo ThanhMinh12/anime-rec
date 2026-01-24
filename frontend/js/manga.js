@@ -5,7 +5,7 @@ await loadNavbar();
 document.body.style.overflow = "auto";
 document.documentElement.style.overflow = "auto";
 let offset = 0;
-const LIMIT = 90;
+const LIMIT = 100;
 let loading = false;
 let hasMore = true;
 let currentQuery = "";
@@ -79,7 +79,10 @@ sentinel.className = "h-64";
 listEl.after(sentinel);
 const observer = new IntersectionObserver(entries => {
   if (entries[0].isIntersecting) {
-    loadManga();
+    observer.unobserve(sentinel);
+    loadManga().then(() => {
+      if (hasMore) observer.observe(sentinel);
+    });
   }
 }, { rootMargin: "300px" });
 observer.observe(sentinel);
