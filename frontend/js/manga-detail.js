@@ -71,13 +71,17 @@ async function loadAverageRating() {
     const data = await apiFetch(`/manga/${id}/average-rating`);
 
     const el = document.getElementById("avg-rating");
+    el.className = "font-semibold";
 
     if (data.average_rating === null) {
       el.textContent = "No ratings yet";
       el.classList.add("text-gray-500");
+      return;
     }
-    if (data.average_rating >= 8) el.classList.add("text-green-600");
-    else if (data.average_rating >= 6) el.classList.add("text-yellow-600");
+    const avg = Number(data.average_rating.toFixed(1));
+    el.textContent = `${avg} / 10`;
+    if (avg >= 8) el.classList.add("text-green-600");
+    else if (avg >= 6) el.classList.add("text-yellow-600");
     else el.classList.add("text-red-600");
   } catch (err) {
     console.error("Average rating error:", err);
