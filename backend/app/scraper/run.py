@@ -27,7 +27,7 @@ def attach_genres(session: Session, manga_id: int, raw_genres: str):
             session.refresh(genre)
 
         session.refresh(
-            MangaGenre(manga_id, genre.id)
+            MangaGenre(manga_id=manga_id, genre_id=genre.id)
         )
 
 
