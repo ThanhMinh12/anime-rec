@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 import asyncio
 
-BEST_SELLING_MANGA_URL = "https://en.wikipedia.org/wiki/List_of_series_run_in_Jump_Square"
+BEST_SELLING_MANGA_URL = "https://en.wikipedia.org/wiki/List_of_series_run_in_Weekly_Sh%C5%8Dnen_Magazine"
 
 
 async def fetch_best_selling_links():
