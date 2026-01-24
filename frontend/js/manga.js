@@ -2,8 +2,10 @@ import { loadNavbar } from "./navbar.js";
 import { apiFetch } from "./api.js";
 
 await loadNavbar();
+document.body.style.overflow = "auto";
+document.documentElement.style.overflow = "auto";
 let offset = 0;
-const LIMIT = 20;
+const LIMIT = 15;
 let loading = false;
 let hasMore = true;
 let currentQuery = "";
@@ -73,7 +75,7 @@ genreEl.addEventListener("change", (e) => {
   loadManga(searchEl.value, e.target.value, true);
 });
 const sentinel = document.createElement("div");
-sentinel.className = "h-10";
+sentinel.className = "h-64";
 listEl.after(sentinel);
 const observer = new IntersectionObserver(entries => {
   if (entries[0].isIntersecting) {
