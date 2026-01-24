@@ -63,6 +63,7 @@ async function loadManga(query = "", genre = "", reset = false) {
     );
 
     offset += LIMIT;
+    observeLastItem();
   }
   loading = false;
 }
@@ -74,17 +75,17 @@ searchEl.addEventListener("input", (e) => {
 genreEl.addEventListener("change", (e) => {
   loadManga(searchEl.value, e.target.value, true);
 });
-const sentinel = document.createElement("div");
-sentinel.className = "h-64";
-listEl.after(sentinel);
+function observeLastItem() {
+  const items = listEl.querySelectorAll("a");
+  const last = items[items.length - 1];
+  if (!last) return;
+  observer.observe(last);
+}
 const observer = new IntersectionObserver(entries => {
   if (entries[0].isIntersecting) {
-    observer.unobserve(sentinel);
-    loadManga().then(() => {
-      if (hasMore) observer.observe(sentinel);
-    });
+    observer.unobserve(entries[0].target);
+    loadManga();
   }
 }, { rootMargin: "300px" });
-observer.observe(sentinel);
 await loadGenres();
 await loadManga("", "", true);
