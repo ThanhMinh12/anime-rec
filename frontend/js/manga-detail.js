@@ -14,7 +14,10 @@ if (!id) {
 const manga = await apiFetch(`/manga/${id}`);
 document.getElementById("manga").innerHTML = `
   <h1 class="text-4xl font-bold">${manga.title}</h1>
-  <p class="text-gray-600">${manga.year || ""}</p>
+  <div class="flex items-center gap-4 text-gray-600 mt-1">
+    <span>${manga.year || ""}</span>
+    <span id="avg-rating" class="text-yellow-600 font-semibold"></span>
+  </div>
   <p class="mt-4">${manga.synopsis || ""}</p>
 `;
 
@@ -63,8 +66,27 @@ async function loadRelatedManga() {
   `).join("");
 }
 
+async function loadAverageRating() {
+  try {
+    const data = await apiFetch(`/manga/${id}/average-rating`);
+
+    const el = document.getElementById("avg-rating");
+
+    if (data.average_rating === null) {
+      el.textContent = "No ratings yet";
+      el.classList.add("text-gray-500");
+    }
+    if (data.average_rating >= 8) el.classList.add("text-green-600");
+    else if (data.average_rating >= 6) el.classList.add("text-yellow-600");
+    else el.classList.add("text-red-600");
+  } catch (err) {
+    console.error("Average rating error:", err);
+  }
+}
+
 await loadReviews();
 await loadRelatedManga();
+await loadAverageRating();
 
 const form = document.getElementById("review-form");
 
