@@ -20,12 +20,11 @@ async def fetch_best_selling_links():
 
     soup = BeautifulSoup(resp.text, "lxml")
 
-    # 🟢 Get ALL tables with class "wikitable"
     tables = soup.find_all("table", class_="wikitable")
     if not tables:
         raise RuntimeError("No wikitable found!")
 
-    links = set()  # use set to avoid duplicates
+    links = set()
 
     for table in tables:
         rows = table.find_all("tr")
@@ -35,7 +34,7 @@ async def fetch_best_selling_links():
             if not cols:
                 continue
 
-            title_cell = cols[0]  # 1st column is always the title
+            title_cell = cols[0]
             a = title_cell.find("a")
 
             if not a or not a.get("href"):

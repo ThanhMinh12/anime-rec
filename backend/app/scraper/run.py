@@ -6,11 +6,9 @@ from app.models import Manga, Genre, MangaGenre
 from app.scraper.crawler import fetch_best_selling_links
 from app.scraper.scraper import scrape_manga_page, normalize_wiki_genres
 
-
-# ---- RATE LIMIT ----
-MAX_CONCURRENCY = 3   # scrape at most 3 pages at a time
-MIN_DELAY = 1.0       # 1 sec delay between each scrape
-MAX_DELAY = 1.6       # random jitter to avoid detection
+MAX_CONCURRENCY = 3
+MIN_DELAY = 1.0  
+MAX_DELAY = 1.6  
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
 
@@ -33,8 +31,7 @@ def attach_genres(session: Session, manga_id: int, raw_genres: str):
         )
 
 
-async def scrape_single(url, session):
-    """Scrape ONE manga page with proper rate limiting."""
+async def scrape_single(url):
 
     async with semaphore:
         await asyncio.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
@@ -46,31 +43,36 @@ async def scrape_single(url, session):
             print(f"ERROR scraping {url}: {e}")
             return
 
-        # Check if already exists
-        existing = session.query(Manga).filter(Manga.title == data["title"]).first()
-        if existing:
-            print(f"Skipping — exists: {data['title']}")
-            return
+        with Session(engine) as session:
+            existing = session.exec(
+                select(Manga).where(Manga.title == data["title"])
+            ).first()
 
-        manga = Manga(
-            title=data["title"],
-            synopsis=data["synopsis"],
-            year=data["year"],
-            score=data["score"],
-            author=data["author"],
-            illustrator=data["illustrator"],
-            publisher=data["publisher"],
-            magazine=data["magazine"],
-            volumes=data["volumes"],
-            chapters=data["chapters"]
-        )
+            if existing:
+                print(f"Skipping — exists: {data['title']}")
+                return
 
-        session.add(manga)
-        session.commit()
-        session.refresh(manga)
-        attach_genres(session, manga.id, data["genres"])
-        session.commit()
-        print(f"Saved → {data['title']}")
+            manga = Manga(
+                title=data["title"],
+                synopsis=data["synopsis"],
+                year=data["year"],
+                score=data["score"],
+                author=data["author"],
+                illustrator=data["illustrator"],
+                publisher=data["publisher"],
+                magazine=data["magazine"],
+                volumes=data["volumes"],
+                chapters=data["chapters"]
+            )
+
+            session.add(manga)
+            session.commit()
+            session.refresh(manga)
+
+            attach_genres(session, manga.id, data["genres"])
+            session.commit()
+
+            print(f"Saved → {data['title']}")
 
 
 async def scrape_and_save_all():
@@ -78,10 +80,8 @@ async def scrape_and_save_all():
     urls = await fetch_best_selling_links()
     print(f"Found {len(urls)} manga pages.")
 
-    with Session(engine) as session:
-        # Schedule tasks concurrently but rate-limited
-        tasks = [scrape_single(url, session) for url in urls]
-        await asyncio.gather(*tasks)
+    tasks = [scrape_single(url) for url in urls]
+    await asyncio.gather(*tasks)
 
     print("\nDone.")
 
