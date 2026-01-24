@@ -5,7 +5,7 @@ import time
 from ..db import get_session
 from ..recs import recommend_similar
 from ..cache import cache_get, cache_set
-logger = logging.getLogger("recs")
+logger = logging.getLogger()
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
 @router.get("/{manga_id}")

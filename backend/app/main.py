@@ -2,7 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import init_db
 from .routers import manga, users, reviews, recommendations, auth
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+)
 app = FastAPI(title="manga Rec API")
 
 app.add_middleware(
@@ -17,7 +22,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     init_db()
-    print("Database tables initialized")
+    logging.info("Database tables initialized")
 
 app.include_router(users.router, prefix="/api")
 app.include_router(manga.router, prefix="/api")
