@@ -5,7 +5,7 @@ await loadNavbar();
 document.body.style.overflow = "auto";
 document.documentElement.style.overflow = "auto";
 let offset = 0;
-const LIMIT = 15;
+const LIMIT = 90;
 let loading = false;
 let hasMore = true;
 let currentQuery = "";
